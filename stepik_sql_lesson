@@ -1,0 +1,307 @@
+
+
+CREATE TABLE vehicle (
+    maker VARCHAR(50),
+    model VARCHAR(50) PRIMARY KEY,
+    type VARCHAR(10)
+);
+
+CREATE TABLE car (
+    code INT PRIMARY KEY,
+    model VARCHAR(50),
+    engine_power INT,
+    fuel_type VARCHAR(20),
+    seats INT,
+    price DECIMAL(10, 2),
+    FOREIGN KEY (model) REFERENCES vehicle(model)
+);
+
+CREATE TABLE truck (
+    code INT PRIMARY KEY,
+    model VARCHAR(50),
+    engine_power INT,
+    load_capacity DECIMAL(10, 2),
+    fuel_type VARCHAR(20),
+    price DECIMAL(10, 2),
+    FOREIGN KEY (model) REFERENCES vehicle(model)
+);
+
+CREATE TABLE motorcycle (
+    code INT PRIMARY KEY,
+    model VARCHAR(50),
+    engine_power INT,
+    fuel_type VARCHAR(20),
+    weight DECIMAL(10, 2),
+    price DECIMAL(10, 2),
+    FOREIGN KEY (model) REFERENCES vehicle(model)
+);
+
+INSERT INTO vehicle (maker, model, type) VALUES
+    ('Multi', 'MultiCar', 'Car'),
+    ('Multi', 'MultiTruck', 'Truck'),
+    ('Multi', 'MultiMoto', 'Motorcycle'),
+    ('Duo2TC', 'Duo2Truck', 'Truck'),
+    ('Duo2TC', 'Duo2Car', 'Car'),
+    ('Duo4TM', 'Duo4Truck', 'Truck'),
+    ('Duo4TM', 'Duo4Moto', 'Motorcycle'),
+    ('Duo5CM', 'Duo5Car', 'Car'),
+    ('Duo5CM', 'Duo5Moto', 'Motorcycle'),
+    ('SoloC', 'SoloCar', 'Car'),
+    ('SoloT', 'SoloTruck', 'Truck'),
+    ('SoloM', 'SoloMoto', 'Motorcycle');
+
+INSERT INTO truck (code, model, engine_power, load_capacity, fuel_type, price) VALUES
+    (1, 'MultiTruck', 270, 1.00, 'Diesel', 1111.00),
+    (2, 'Duo2Truck', 320, 2.00, 'Diesel', 2222.00),
+    (3, 'Duo4Truck', 300, 4.00, 'Diesel', 3333.00),
+    (4, 'SoloTruck', 310, 6.00, 'Diesel', 4444.00);
+
+INSERT INTO car (code, model, engine_power, fuel_type, seats, price) VALUES
+    (1, 'MultiCar', 180, 'Electric', 4, 1010.00),
+    (2, 'Duo2Car', 350, 'Gasoline', 4, 2020.00),
+    (3, 'Duo5Car', 280, 'Diesel', 6, 3030.00),
+    (4, 'SoloCar', 777, 'Gasoline', 2, 4040.00);
+
+INSERT INTO motorcycle (code, model, engine_power, fuel_type, weight, price) VALUES
+    (1, 'MultiMoto', 33, 'Electric', 50.00, 101.00),
+    (2, 'Duo4Moto', 33, 'Electric', 70.00, 102.00),
+    (3, 'Duo5Moto', 66, 'Gasoline', 200.00, 103.00),
+    (4, 'SoloMoto', 77, 'Gasoline', 210.00, 104.00);
+    
+ 
+--vehicle: Содержит информацию о производителе, номере модели и типе транспортного средства ('Car', 'Truck', 'Motorcycle'). Предполагается, что номера моделей уникальны для всех производителей и типов транспортных средств.
+--maker: Производитель транспортного средства.
+--model: Номер модели транспортного средства (первичный ключ).
+   
+   SELECT * FROM vehicle v;
+   
+--car: Содержит информацию о легковых автомобилях, включая уникальный код, модель (внешний ключ к таблице Vehicle), мощность двигателя, тип топлива, количество мест и цену.
+--code: Уникальный код автомобиля.
+--model: Номер модели (внешний ключ к таблице Vehicle).
+--engine_power: Мощность двигателя (в лошадиных силах).
+--fuel_type: Тип топлива (например, 'Gasoline', 'Diesel', 'Electric').
+--seats: Количество мест.
+--price: Цена автомобиля (в долларах).
+  SELECT * FROM car c ;
+ 
+ --motorcycle: Содержит информацию о мотоциклах, включая уникальный код, модель (внешний ключ к таблице Vehicle), мощность двигателя, тип топлива, вес и цену.
+--code: Уникальный код мотоцикла.
+--model: Номер модели (внешний ключ к таблице Vehicle).
+--engine_power: Мощность двигателя (в лошадиных силах).
+--fuel_type: Тип топлива (например, 'Gasoline', 'Electric').
+--weight: Вес (в килограммах).
+--price: Цена мотоцикла (в долларах).  
+   SELECT * FROM motorcycle m;
+  
+--	truck: Содержит информацию о грузовиках, включая уникальный код, модель (внешний ключ к таблице Vehicle), мощность двигателя, грузоподъемность, тип топлива и цену.
+--code: Уникальный код грузовика.
+--model: Номер модели (внешний ключ к таблице Vehicle).
+--engine_power: Мощность двигателя (в лошадиных силах).
+--load_capacity: Грузоподъемность (в тоннах).
+--fuel_type: Тип топлива (например, 'Gasoline', 'Diesel').
+--price: Цена грузовика (в долларах).  
+   SELECT * FROM truck t;
+  
+  
+SELECT model, engine_power, load_capacity  FROM truck t WHERE price < 3500;
+
+
+  
+ SELECT V.maker, M.engine_power FROM motorcycle M INNER JOIN vehicle V ON M.model = V.model WHERE M.weight > 100;
+ 
+ --Найдите модели и цены всех имеющихся в продаже ТС (любого типа) производителя Multi. 
+SELECT model, price FROM vehicle JOIN car USING(model) WHERE maker = 'Multi'
+UNION 
+SELECT model, price FROM vehicle JOIN motorcycle USING(model) WHERE maker = 'Multi'
+UNION
+SELECT model, price FROM vehicle JOIN truck USING(model) WHERE maker = 'Multi';
+
+SELECT *--v.model, COALESCE(c.price, t.price, m.price) as price
+FROM vehicle v
+LEFT JOIN car c ON v.model = c.model
+LEFT JOIN truck t ON v.model = t.model
+LEFT JOIN motorcycle m ON v.model = m.model
+WHERE v.maker = 'Multi';
+
+--Найдите производителя, выпускающего легковые автомобили, но не грузовики.
+
+
+SELECT maker FROM vehicle WHERE type = 'Car' AND maker NOT IN (SELECT maker FROM vehicle WHERE type = 'Truck');
+
+
+--Найдите производителей легковых авто с мощностью двигателя не менее 700 лошадиных сил. Вывести: maker. 
+
+SELECT maker FROM vehicle v INNER JOIN car c USING(model) WHERE engine_power > 700;
+
+
+-- Найдите мощности двигателей, совпадающих у двух и более мотоциклов. Вывести: engine_power. 
+SELECT engine_power FROM motorcycle m GROUP BY engine_power HAVING COUNT(engine_power)>1
+
+--Найдите производителей самых дешевых электрических (Electric) мотоциклов. Вывести: maker, price. 
+SELECT maker, price FROM vehicle v INNER JOIN motorcycle m USING(model) WHERE m.fuel_type = 'Electric' AND price IN (SELECT MIN(price) FROM motorcycle);
+
+/*Найдите производителей, которые производили бы как легковые автомобили с мощностью двигателя 
+не менее 300 лошадиных сил, так и грузовики с мощностью двигателя не менее 300 лошадиных сил. Вывести: maker.*/
+
+SELECT
+	maker
+FROM
+	vehicle v
+INNER JOIN car c
+		USING(model)
+WHERE
+	c.engine_power >= 300
+	AND maker IN (
+	SELECT
+		maker
+	FROM
+		vehicle v
+	INNER JOIN truck t
+			USING(model)
+	WHERE
+		t.engine_power >= 300);
+
+/*Найдите производителей мотоциклов, которые производят легковые автомобили, с наименьшей мощностью двигателя и с самым большим количеством мест среди всех легковых автомобилей. 
+Вывести: maker*/
+
+SELECT
+	v.maker
+FROM
+	vehicle v
+INNER JOIN motorcycle m
+		USING(model)
+WHERE
+	v.maker IN (
+		SELECT
+			maker
+		FROM
+			vehicle v
+		INNER JOIN car c
+				USING(model)
+		ORDER BY
+			seats DESC,
+			engine_power
+			LIMIT 1)
+	
+	
+	
+	
+/*Найдите среднюю цену легковых автомобилей и грузовиков, выпущенных производителем Duo2TC. Вывести: одна общая средняя цена (average_price). */
+	SELECT ROUND(AVG(price), 6) AS average_price
+FROM
+	(
+	SELECT
+		AVG(price) AS price
+	FROM
+		car c
+	LEFT JOIN vehicle v
+			USING(model)
+	WHERE
+		maker = 'Duo2TC'
+UNION
+	SELECT
+		AVG(price) AS price
+	FROM
+		truck t
+	LEFT JOIN vehicle v
+			USING(model)
+	WHERE
+		maker = 'Duo2TC'			
+			) combined_prices;
+		
+		
+/*		
+1. Создайте три таблицы так чтобы: в первой хранились фамилии, во второй имена, в третьей - отчества.
+
+2. Заполните первую значениями: Иванов, Петров, Сидоров. Вторую: Иван, Петр, Сидор. Третью: Иванович, Петрович, Сидорович.
+
+3. Напишите запрос, результат выполнения которого будет возвращать три Ф.И.О целиком: Иванов Иван Иванович, Петров Петр Петрович, Сидоров Сидор Сидорович, но в обратном алфавитном порядке (по убыванию).
+
+4. В качестве результата приложите файл с запросами для всего вышеперечисленного. Оформление и формат файла - любые.	
+*/
+		
+		
+DROP TABLE IF EXISTS d_name;
+DROP TABLE IF EXISTS d_atronymic;
+DROP TABLE IF EXISTS d_surname;	
+
+CREATE TABLE d_surname (
+id SERIAL PRIMARY KEY,
+surname VARCHAR (250)
+);
+
+CREATE TABLE d_name (
+id SERIAL PRIMARY KEY,
+name VARCHAR (250)
+);
+
+CREATE TABLE d_atronymic (
+id SERIAL PRIMARY KEY,
+atronymic VARCHAR (250)
+);
+
+INSERT
+	INTO
+	d_surname (surname)
+VALUES 
+	('Иванов'),
+	('Петров'),
+	('Сидоров');
+
+INSERT
+	INTO
+	d_name (name)
+VALUES 
+	('Иван'),
+	('Петр'),
+	('Сидор');
+
+INSERT
+	INTO
+	d_atronymic (atronymic)
+VALUES 
+	('Иванович'),
+	('Петрович'),
+	('Сидорович');
+
+SELECT
+	surname,
+	name,
+	atronymic
+FROM
+	d_surname
+INNER JOIN d_name
+		USING(id)
+INNER JOIN d_atronymic
+		USING(id)
+ORDER BY
+	surname DESC;
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			
+		
+	
